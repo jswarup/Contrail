@@ -16,18 +16,14 @@ set(SOURCE_PATH "${ROOT_PATH}src/")
 
 include(CTest)
 
-add_library(particles STATIC
-	  ${SOURCE_PATH}console/randomize.cpp
-	  ${SOURCE_PATH}console/randomize.h
+add_library(particles STATIC 
 	  ${SOURCE_PATH}console/particle.cu
-	  ${SOURCE_PATH}console/particle.h
-	  ${SOURCE_PATH}console/v3.cu
-	  ${SOURCE_PATH}console/v3.h
+	  ${SOURCE_PATH}console/particle.h 
  )
 
  #____________________________________________________________________________________________________________________________
 
-target_compile_features(particles PUBLIC cxx_std_11)
+target_compile_features(particles PUBLIC cxx_std_17)
  
 set_target_properties( particles PROPERTIES CUDA_SEPARABLE_COMPILATION ON )
 
