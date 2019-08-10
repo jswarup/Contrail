@@ -23,16 +23,16 @@ public:
 
 //_____________________________________________________________________________________________________________________________
 
-class particle
+class Particle
 {
 	PointF3		position;
 	PointF3		velocity;
 	PointF3		totalDistance;
 
 public:
-	particle();
+	Particle();
 
-	__host__ __device__ void advance(float dist);
+	__host__ __device__		void advance(float dist);
 
 	const PointF3		&TotalDistance() const 
 	{

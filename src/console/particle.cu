@@ -62,13 +62,14 @@ __host__ __device__ void PointF3::scramble()
 
 //_____________________________________________________________________________________________________________________________
 
-particle::particle() : 	position(), velocity(), totalDistance(1,0,0)
+Particle::Particle() 
+	: 	position(), velocity(), totalDistance(1,0,0)
 {
 }
 
 //_____________________________________________________________________________________________________________________________
 
-__device__ __host__ void particle::advance(float d)
+__device__ __host__ void Particle::advance(float d)
 {
 	velocity.normalize();
 	auto	dx = d * velocity.x;
