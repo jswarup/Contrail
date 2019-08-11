@@ -3,27 +3,19 @@
 #include	"particle.h" 
 
 //_____________________________________________________________________________________________________________________________
-
-namespace {
-	std::random_device randDevice;
-	std::minstd_rand engine(randDevice());
-	std::normal_distribution<float> normalDist(0, RAND_MAX);
-}
-
-//_____________________________________________________________________________________________________________________________
-
-void randomize(float& x, float& y, float& z)
-{
-	x = normalDist(engine);
-	y = normalDist(engine);
-	z = normalDist(engine);
-}
+ 
+std::random_device				s_RandDevice;
+std::minstd_rand				s_Engine(s_RandDevice());
+std::normal_distribution<float> s_NormalDist(0, RAND_MAX); 
+ 
 
 //_____________________________________________________________________________________________________________________________
 
 PointF3::PointF3()
 {
-	::randomize(x, y, z);
+	x = s_NormalDist( s_Engine);
+	y = s_NormalDist( s_Engine);
+	z = s_NormalDist( s_Engine);
 }
 
 //_____________________________________________________________________________________________________________________________
@@ -35,7 +27,9 @@ PointF3::PointF3(float xIn, float yIn, float zIn) : x(xIn), y(yIn), z(zIn)
 
 void PointF3::randomize()
 {
-	::randomize(x, y, z);
+	x = s_NormalDist( s_Engine);
+	y = s_NormalDist( s_Engine);
+	z = s_NormalDist( s_Engine);
 }
 
 //_____________________________________________________________________________________________________________________________

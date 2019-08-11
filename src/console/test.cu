@@ -27,45 +27,24 @@ int main(int argc, char ** argv)
 	if (argc > 2) 
 		srand(atoi(argv[2]));	// Random seed
 
-	cudaError_t error = cudaGetLastError();
-
-	if (error != cudaSuccess)
-	{
-		printf("0 %s\n", cudaGetErrorString( error));
-		exit(1);
-	}
+	Fl_CUDAERROR_CHECK()
 
 	Particle	*pArray = new Particle[n];
 	Particle	*devPArray = NULL;
 	cudaMalloc( &devPArray, n * sizeof(Particle));
 	cudaDeviceSynchronize(); 
-	error = cudaGetLastError();
-	if ( error != cudaSuccess)
-	{
-		printf("1 %s\n", cudaGetErrorString( error));
-		exit(1);
-	}
+	Fl_CUDAERROR_CHECK()
 
 	cudaMemcpy(devPArray, pArray, n * sizeof( Particle), cudaMemcpyHostToDevice);
 	cudaDeviceSynchronize(); 
-	error = cudaGetLastError();
-	if (error != cudaSuccess)
-	{
-		printf("2 %s\n", cudaGetErrorString( error));
-		exit(1);
-	}
+	Fl_CUDAERROR_CHECK()
 
 	for (int i = 0; i < 100; i++)
 	{
 		float dt = (float)rand() / (float)RAND_MAX; // Random distance each step
 		advanceParticles << < 1 + n / 256, 256 >> > (dt, devPArray, n);
-		error = cudaGetLastError();
-		if (error != cudaSuccess)
-		{
-			printf("3 %s\n", cudaGetErrorString( error));
-			exit(1);
-		}
-
+		 
+		Fl_CUDAERROR_CHECK()
 		cudaDeviceSynchronize();
 	}
 	cudaMemcpy(pArray, devPArray, n * sizeof(Particle), cudaMemcpyDeviceToHost);
