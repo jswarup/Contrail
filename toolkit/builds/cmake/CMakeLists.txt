@@ -28,7 +28,9 @@ include_directories(
 
 add_library(particles STATIC 
 	  ${SOURCE_PATH}console/particle.cu
-	  ${SOURCE_PATH}console/particle.h 
+	  ${SOURCE_PATH}console/particle.h 	  
+	  ${SOURCE_PATH}console/thursters.cu
+	  ${SOURCE_PATH}console/thursters.h 
  )
 
 

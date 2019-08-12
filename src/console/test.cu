@@ -1,6 +1,6 @@
  // test.cu ___________________________________________________________________________________________________________________
 
-#include "particle.h"
+#include "thursters.h"
 
 //_____________________________________________________________________________________________________________________________
 
@@ -16,7 +16,7 @@ __global__ void advanceParticles(float dt, Particle * pArray, int nParticles)
 //_____________________________________________________________________________________________________________________________
 
 
-int main(int argc, char ** argv)
+int main( int argc, char ** argv)
 {
 
 	int		n = 1000000;
@@ -27,7 +27,11 @@ int main(int argc, char ** argv)
 
 	Fl_CUDAERROR_CHECK()
 
-	thrust::device_vector< uint8_t>	devMem( 16 *1024 *1024* 1024);
+	Thursters		thursters;
+	thursters.Fire();
+	return;
+
+	thrust::device_vector< uint8_t>	devMem(  1024 *1024* 1024);
 	 
 	Particle	*pArray = new Particle[n];
 	Particle	*devPArray = NULL;
