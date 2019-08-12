@@ -8,21 +8,6 @@ std::random_device				s_RandDevice;
 std::minstd_rand				s_Engine(s_RandDevice());
 std::normal_distribution<float> s_NormalDist(0, RAND_MAX); 
  
-
-//_____________________________________________________________________________________________________________________________
-
-PointF3::PointF3()
-{
-	x = s_NormalDist( s_Engine);
-	y = s_NormalDist( s_Engine);
-	z = s_NormalDist( s_Engine);
-}
-
-//_____________________________________________________________________________________________________________________________
-
-PointF3::PointF3(float xIn, float yIn, float zIn) : x(xIn), y(yIn), z(zIn)
-{}
-
 //_____________________________________________________________________________________________________________________________
 
 void PointF3::randomize()
@@ -53,14 +38,7 @@ __host__ __device__ void PointF3::scramble()
 	y = ty;
 	z = tz;
 }
-
-//_____________________________________________________________________________________________________________________________
-
-Particle::Particle() 
-	: 	position(), velocity(), totalDistance(1,0,0)
-{
-}
-
+ 
 //_____________________________________________________________________________________________________________________________
 
 __device__ __host__ void Particle::advance(float d)

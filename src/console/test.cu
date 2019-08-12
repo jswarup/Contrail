@@ -1,8 +1,6 @@
  // test.cu ___________________________________________________________________________________________________________________
 
 #include "particle.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 //_____________________________________________________________________________________________________________________________
 
@@ -29,6 +27,8 @@ int main(int argc, char ** argv)
 
 	Fl_CUDAERROR_CHECK()
 
+	thrust::device_vector< uint8_t>	devMem( 16 *1024 *1024* 1024);
+	 
 	Particle	*pArray = new Particle[n];
 	Particle	*devPArray = NULL;
 	cudaMalloc( &devPArray, n * sizeof(Particle));

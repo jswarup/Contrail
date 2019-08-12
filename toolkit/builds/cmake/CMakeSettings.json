@@ -6,17 +6,11 @@
       "configurationType": "Debug",
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "buildRoot": "${workspaceRoot}\\delivery\\Windows\\CMakeBuilds\\build\\${name}",
-      "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "",
+      "installRoot": "${workspaceRoot}\\out\\install\\${name}",
+     // "cmakeCommandArgs": "--trace",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "CMAKE_INSTALL_PREFIX",
-          "value": "D:/Jyoti/Work/Cuda/fleck/delivery/CMakeBuilds/",
-          "type": "PATH"
-        }
-      ],
+
       "cmakeToolchain": ""
     }
   ]

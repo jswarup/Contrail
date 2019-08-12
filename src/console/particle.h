@@ -2,8 +2,14 @@
 #pragma once
 
 #include	<math.h>
-#include	<random>
+#include	<random> 
+#include	<thrust/host_vector.h>
+#include	<thrust/device_vector.h>
 
+#include	<thrust/copy.h>
+#include	<thrust/fill.h>
+#include	<thrust/sequence.h>
+//_____________________________________________________________________________________________________________________________
 
 #define Fl_CUDAERROR_CHECK()																		\
 {																									\
@@ -25,9 +31,15 @@ public:
 	float y;
 	float z;
 
-	PointF3();
-	PointF3(float xIn, float yIn, float zIn);
-	void					 randomize();
+	PointF3( void) 
+	{}
+
+	PointF3( float xIn, float yIn, float zIn) 
+		: x(xIn), y(yIn), z(zIn)
+	{}
+
+	 void	randomize();
+
 	__host__ __device__ void normalize();
 	__host__ __device__ void scramble();
 
@@ -42,7 +54,12 @@ class Particle
 	PointF3		totalDistance;
 
 public:
-	Particle();
+	Particle( void)
+		: totalDistance(1,0,0)
+	{
+		position.randomize();
+		velocity.randomize();
+	}
 
 	__host__ __device__		void advance(float dist);
 
