@@ -28,6 +28,26 @@ public:
 
 //_____________________________________________________________________________________________________________________________
 
+struct PointF2 :  public thrust::tuple<float,float>
+{
+	typedef thrust::tuple<float,float>	Base;
+
+	TH_UBIQ	PointF2( void)
+	{}
+
+	PointF2( float x, float y)
+		: Base( x, y)
+	{}
+
+	friend	std::ostream	&operator<<( std::ostream &ostr, const PointF2 &pt2)
+	{
+		ostr << "[ " << thrust::get< 0>( pt2) << ", " << thrust::get< 1>( pt2) << "]";
+		return ostr;
+	}
+};
+
+//_____________________________________________________________________________________________________________________________
+
 class Particle
 {
 	PointF3		position;

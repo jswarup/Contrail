@@ -106,6 +106,81 @@ void Thursters::XFormOutTest(void)
 	return;
 }
 
+
+//_____________________________________________________________________________________________________________________________
+/*
+ * This example "welds" triangle vertices together by taking as input "triangle soup" and eliminating redundant vertex positions and shared edges.  
+ * result is a connected mesh.
+ * 
+ *
+ * Input: 9 vertices representing a mesh with 3 triangles
+ *  
+ *  Mesh              Vertices 
+ *    ------           (2)      (5)--(4)    (8)      
+ *    | \ 2| \          | \       \   |      | \
+ *    |  \ |  \   <->   |  \       \  |      |  \
+ *    | 0 \| 1 \        |   \       \ |      |   \
+ *    -----------      (0)--(1)      (3)    (6)--(7)
+ *
+ *   (vertex 1 equals vertex 3, vertex 2 equals vertex 5, ...)
+ *
+ * Output: mesh representation with 5 vertices and 9 indices
+ *
+ *  Vertices            Indices
+ *   (1)--(3)            [(0,2,1),
+ *    | \  | \            (2,3,1), 
+ *    |  \ |  \           (2,4,3)]
+ *    |   \|   \
+ *   (0)--(2)--(4)
+ */
+
+// define a 2d float vector
+
+void	Thursters::WeldTest( void)
+{ 
+    thrust::device_vector< PointF2>				input(9);
+
+    input[ 0] = PointF2( 0, 0);					// First Triangle
+    input[ 1] = PointF2( 1, 0);
+    input[ 2] = PointF2( 0, 1);
+    input[ 3] = PointF2( 1, 0);					// Second Triangle
+    input[ 4] = PointF2( 1, 1);
+    input[ 5] = PointF2( 0, 1);
+    input[ 6] = PointF2( 1, 0);					// Third Triangle
+    input[ 7] = PointF2( 2, 0);
+    input[ 8] = PointF2( 1, 1);
+		   
+	std::cout << "Points: " << Th_Utils::IterOut( &input[ 0], &input[ 9], "  ") << " \n";
+
+    // allocate space for output mesh representation
+    thrust::device_vector<PointF2>					vertices = input;
+    thrust::device_vector<unsigned int>				indices( input.size());
+
+    thrust::sort( vertices.begin(), vertices.end());									// sort vertices to bring duplicates together
+	std::cout << "Sorted: " << Th_Utils::IterOut( vertices.begin(), vertices.end(), "  ") << " \n"; 
+    
+    vertices.erase( thrust::unique(vertices.begin(), vertices.end()), vertices.end());	// find unique vertices and erase redundancies
+	std::cout << "Unique: " << Th_Utils::IterOut( vertices.begin(), vertices.end(), "  ") << " \n";
+
+    // find index of each input vertex in the list of unique vertices
+    thrust::lower_bound(vertices.begin(), vertices.end(), input.begin(), input.end(), indices.begin());
+	std::cout << "Index : " << Th_Utils::IterOut( indices.begin(), indices.end(), "  ") << " \n";
+
+    // print output mesh representation
+    std::cout << "Output Representation" << std::endl;
+    for( size_t i = 0; i < vertices.size(); i++)
+    {
+        PointF2 v = vertices[i];
+        std::cout << " vertices[" << i << "] = (" << thrust::get<0>(v) << "," << thrust::get<1>(v) << ")" << std::endl;
+    }
+    for(size_t i = 0; i < indices.size(); i++)
+    {
+        std::cout << " indices[" << i << "] = " << indices[i] << std::endl;
+    }
+
+    return;
+}
+
 //_____________________________________________________________________________________________________________________________
 
 void	Thursters::Fire( void)
@@ -115,7 +190,8 @@ void	Thursters::Fire( void)
 
 	std::cout << "Thrust v" << major << "." << minor << "\n";
 	 
-	XFormOutTest();
+	WeldTest();
+	//XFormOutTest();
 	//ClampTest();
     return; 
 }

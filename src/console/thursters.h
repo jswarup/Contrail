@@ -40,6 +40,7 @@ public:
 
 	void	ClampTest( void);
 	void	XFormOutTest(void);
+	void	WeldTest( void);
 
 	void	Fire( void);
 };

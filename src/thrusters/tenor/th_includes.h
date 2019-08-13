@@ -11,6 +11,8 @@
 #include	<thrust/functional.h>
 #include	<thrust/gather.h>
 #include	<thrust/iterator/transform_output_iterator.h>
+#include	<thrust/binary_search.h>
+#include	<thrust/sort.h>
 
 //_____________________________________________________________________________________________________________________________
 
