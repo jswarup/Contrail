@@ -19,7 +19,7 @@ void PointF3::randomize()
 
 //_____________________________________________________________________________________________________________________________
 
-__host__ __device__ void PointF3::normalize()
+TH_UBIQ void PointF3::Normalize()
 {
 	float t = sqrt(x * x + y * y + z * z);
 	x /= t;
@@ -29,7 +29,7 @@ __host__ __device__ void PointF3::normalize()
 
 //_____________________________________________________________________________________________________________________________
 
-__host__ __device__ void PointF3::scramble()
+TH_UBIQ void	PointF3::Scramble()
 {
 	float	tx = 0.317f * (x + 1.0f) + y + z * x * x + y + z;
 	float	ty = 0.619f * (y + 1.0f) + y * y + x * y * z + y + x;
@@ -41,9 +41,9 @@ __host__ __device__ void PointF3::scramble()
  
 //_____________________________________________________________________________________________________________________________
 
-__device__ __host__ void Particle::advance(float d)
+TH_UBIQ void	Particle::Advance(float d)
 {
-	velocity.normalize();
+	velocity.Normalize();
 	auto	dx = d * velocity.x;
 	position.x += dx;
 	totalDistance.x += dx;
@@ -53,9 +53,7 @@ __device__ __host__ void Particle::advance(float d)
 	auto	dz = d * velocity.z;
 	position.z += dz;
 	totalDistance.z += dz;
-	velocity.scramble();
+	velocity.Scramble();
 }
-
-
 
 //_____________________________________________________________________________________________________________________________

@@ -24,9 +24,11 @@ set(CMAKE_INSTALL_PREFIX ${BUILD_PATH}/bin)
 #____________________________________________________________________________________________________________________________
 
 include_directories(  
+	${SOURCE_PATH}
 )
 
 add_library(particles STATIC 
+	  ${SOURCE_PATH}thrusters/tenor/th_includes.cu
 	  ${SOURCE_PATH}console/particle.cu
 	  ${SOURCE_PATH}console/particle.h 	  
 	  ${SOURCE_PATH}console/thursters.cu

@@ -1,26 +1,7 @@
 // particle.h ___________________________________________________________________________________________________________________
 #pragma once
 
-#include	<math.h>
-#include	<random> 
-#include	<thrust/host_vector.h>
-#include	<thrust/device_vector.h>
-
-#include	<thrust/copy.h>
-#include	<thrust/fill.h>
-#include	<thrust/sequence.h>
-//_____________________________________________________________________________________________________________________________
-
-#define Fl_CUDAERROR_CHECK()																		\
-{																									\
-	cudaError_t error = cudaGetLastError();															\
-																									\
-	if (error != cudaSuccess)																		\
-	{																								\
-		printf("%s, %d: %s\n", __FILE__, __LINE__, cudaGetErrorString(error));						\
-		exit(1);																					\
-	}																								\
-}
+#include	"thrusters/tenor/th_includes.h"
 
 //_____________________________________________________________________________________________________________________________
 
@@ -40,8 +21,8 @@ public:
 
 	 void	randomize();
 
-	__host__ __device__ void normalize();
-	__host__ __device__ void scramble();
+	TH_UBIQ void	Normalize();
+	TH_UBIQ void	Scramble();
 
 };
 
@@ -61,7 +42,7 @@ public:
 		velocity.randomize();
 	}
 
-	__host__ __device__		void advance(float dist);
+	TH_UBIQ	void		Advance(float dist);
 
 	const PointF3		&TotalDistance() const 
 	{

@@ -1,0 +1,34 @@
+// th_includes.h ___________________________________________________________________________________________________________________
+#pragma once
+
+#include	<math.h>
+#include	<random> 
+#include	<thrust/host_vector.h>
+#include	<thrust/device_vector.h>
+
+#include	<thrust/copy.h>
+#include	<thrust/fill.h>
+#include	<thrust/sequence.h>
+
+//_____________________________________________________________________________________________________________________________
+
+#define TH_HOST			__host__
+#define TH_DEVICE		__device__
+#define TH_UBIQ			__host__ __device__
+
+
+
+//_____________________________________________________________________________________________________________________________
+
+#define TH_CUDAERROR_CHECK()																		\
+{																									\
+	cudaError_t error = cudaGetLastError();															\
+																									\
+	if (error != cudaSuccess)																		\
+	{																								\
+		printf("%s, %d: %s\n", __FILE__, __LINE__, cudaGetErrorString(error));						\
+		exit(1);																					\
+	}																								\
+}
+
+//_____________________________________________________________________________________________________________________________
