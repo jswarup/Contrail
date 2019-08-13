@@ -1,6 +1,7 @@
  // thursters.cu ___________________________________________________________________________________________________________________
 
-#include "thursters.h"
+#include	"thursters.h"
+#include	"thrusters/hive/th_utils.h"
 
 //_____________________________________________________________________________________________________________________________
 
@@ -19,27 +20,14 @@ struct simple_negate : public thrust::unary_function<T,T>
         return -x;
     }
 };
-
-//_____________________________________________________________________________________________________________________________
-
-template <typename Iterator>
-void print_range(const std::string& name, Iterator first, Iterator last)
-{
-    typedef typename std::iterator_traits<Iterator>::value_type T;
-
-    std::cout << name << ": ";
-    thrust::copy(first, last, std::ostream_iterator<T>(std::cout, " "));  
-    std::cout << "\n";
-} 
-
+ 
 //_____________________________________________________________________________________________________________________________
 
 void	Thursters::ClampTest(void)
 {
     // clamp values to the range [1, 5]
     int lo = 1;
-    int hi = 5;
-
+    int hi = 5; 
 
     // initialize values
     DVector		values(8);
@@ -52,38 +40,70 @@ void	Thursters::ClampTest(void)
     values[5] =  0;
     values[6] =  3;
     values[7] =  8;
-    
-    print_range("values         ", values.begin(), values.end());
-
+     
+	std::cout << "values :" << Th_Utils::IterOut( values.begin(), values.end(), "  ") << "\n";
     // define some more types
 
     // create a transform_iterator that applies clamp() to the values array
     auto		cv_begin = thrust::make_transform_iterator(values.begin(), Clamp<int>(lo, hi));
     auto		cv_end   = cv_begin + values.size();
     
-    // now [clamped_begin, clamped_end) defines a sequence of clamped values
-    print_range("clamped values ", cv_begin, cv_end); 
+    // now [clamped_begin, clamped_end) defines a sequence of clamped values 
+	std::cout << "clamped	:"  << Th_Utils::IterOut( cv_begin, cv_end, "  ") << "\n";
 
-    // compute the sum of the clamped sequence with reduce()
-    std::cout << "sum of clamped values : " << thrust::reduce(cv_begin, cv_end) << "\n";
+    std::cout << "sum of clamped values :" << thrust::reduce( cv_begin, cv_end) << "\n";	    // compute the sum of the clamped sequence with reduce()
 
-	thrust::counting_iterator<int> count_begin(0);
-    thrust::counting_iterator<int> count_end(10);
-    
-    print_range("sequence         ", count_begin, count_end);
+	thrust::counting_iterator< int> count_begin( 0);
+    thrust::counting_iterator< int> count_end( 10);
+     
+	std::cout << "sequence :" << ": " << Th_Utils::IterOut( count_begin, count_end, "  ") << "\n";
 
     auto	cs_begin = thrust::make_transform_iterator(count_begin, Clamp<int>(lo, hi));
     auto	cs_end   = thrust::make_transform_iterator(count_end,   Clamp<int>(lo, hi));
-
-    print_range("clamped sequence ", cs_begin, cs_end);
+	std::cout << "clamped sequence :" << Th_Utils::IterOut( cs_begin, cs_end, "  ") << "\n";
     
     auto	ncs_begin = thrust::make_transform_iterator(cs_begin, thrust::negate<int>());
     auto	ncs_end   = thrust::make_transform_iterator(cs_end,   thrust::negate<int>());
-
-    print_range("negated sequence ", ncs_begin, ncs_end);
-	 
-
+	std::cout << "negated sequence :" << Th_Utils::IterOut( ncs_begin, ncs_end, "  ") << "\n";  
     return;
+}
+
+//_____________________________________________________________________________________________________________________________
+
+struct Functor 
+{
+  template<class Tuple>
+  TH_UBIQ	float operator()(const Tuple& tuple) const
+  {
+    const float x = thrust::get<0>(tuple);
+    const float y = thrust::get<1>(tuple);
+    return x*y*2.0f / 3.0f;
+  }
+};
+
+//_____________________________________________________________________________________________________________________________
+
+void Thursters::XFormOutTest(void)
+{
+	float	u[] = { 4 , 3,  2,   1};
+	float	v[] = {-1,  1,  1,  -1};
+	int		idx[] = {3, 0, 1};
+	float	w[] = {0, 0, 0};
+	
+	thrust::device_vector<float>	U(u, u + 4);
+	thrust::device_vector<float>	V(v, v + 4);
+	auto							zUVIt = thrust::make_zip_iterator(thrust::make_tuple(U.begin(), V.begin()));
+
+	thrust::device_vector<int>		IDX(idx, idx + 3);
+	thrust::device_vector<float>	W(w, w + 3);
+	auto							outIt = thrust::make_transform_output_iterator(W.begin(), Functor());
+	
+	// gather multiple elements and apply a function before writing result in memory
+	thrust::gather( IDX.begin(), IDX.end(), zUVIt, outIt);
+	
+	std::cout << "result= [ " << Th_Utils::IterOut( W.begin(), W.end(), "  ") << "] \n";
+	
+	return;
 }
 
 //_____________________________________________________________________________________________________________________________
@@ -93,16 +113,10 @@ void	Thursters::Fire( void)
 	int		major = THRUST_MAJOR_VERSION;
 	int		minor = THRUST_MINOR_VERSION;
 
-	std::cout << "Thrust v" << major << "." << minor << std::endl;
-
-    // create an STL list with 4 values
-    std::list<int> stl_list;
-
-    stl_list.push_back(10);
-    stl_list.push_back(20);
-    stl_list.push_back(30);
-    stl_list.push_back(40); 
-	ClampTest();
+	std::cout << "Thrust v" << major << "." << minor << "\n";
+	 
+	XFormOutTest();
+	//ClampTest();
     return; 
 }
 

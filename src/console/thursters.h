@@ -1,11 +1,8 @@
 // thursters.h ___________________________________________________________________________________________________________________
 #pragma once
 
-#include "particle.h"
-#include <thrust/device_vector.h>
-#include <thrust/copy.h>
-#include <list>
-#include <vector>
+#include	"thrusters/tenor/th_includes.h"
+#include	"particle.h"
 
 //_____________________________________________________________________________________________________________________________
 // Clamps a value to the range [lo, hi]
@@ -15,10 +12,12 @@ struct Clamp : public thrust::unary_function<T,T>
 {
     T lo, hi;
 
-    __host__ __device__
-    Clamp(T _lo, T _hi) : lo(_lo), hi(_hi) {}
+    TH_UBIQ	
+	Clamp(T _lo, T _hi) 
+		: lo(_lo), hi(_hi) 
+	{}
 
-    __host__ __device__
+    TH_UBIQ
     T operator()(T x)
     {
         if (x < lo)
@@ -40,6 +39,8 @@ public:
 	Thursters( void);
 
 	void	ClampTest( void);
+	void	XFormOutTest(void);
+
 	void	Fire( void);
 };
 

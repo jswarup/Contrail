@@ -29,6 +29,7 @@ include_directories(
 
 add_library(particles STATIC 
 	  ${SOURCE_PATH}thrusters/tenor/th_includes.cu
+	  ${SOURCE_PATH}thrusters/hive/th_utils.cu
 	  ${SOURCE_PATH}console/particle.cu
 	  ${SOURCE_PATH}console/particle.h 	  
 	  ${SOURCE_PATH}console/thursters.cu
