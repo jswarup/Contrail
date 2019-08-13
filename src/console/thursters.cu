@@ -72,13 +72,13 @@ void	Thursters::ClampTest(void)
 
 struct Functor 
 {
-  template<class Tuple>
-  TH_UBIQ	float operator()(const Tuple& tuple) const
-  {
-    const float x = thrust::get<0>(tuple);
-    const float y = thrust::get<1>(tuple);
-    return x*y*2.0f / 3.0f;
-  }
+	template<class Tuple>
+	TH_UBIQ	float operator()(const Tuple& tuple) const
+	{
+		const float		x = thrust::get< 0>(tuple);
+		const float		y = thrust::get< 1>(tuple);
+		return x*y*2.0f / 3.0f;
+	}
 };
 
 //_____________________________________________________________________________________________________________________________
@@ -92,11 +92,11 @@ void Thursters::XFormOutTest(void)
 	
 	thrust::device_vector<float>	U(u, u + 4);
 	thrust::device_vector<float>	V(v, v + 4);
-	auto							zUVIt = thrust::make_zip_iterator(thrust::make_tuple(U.begin(), V.begin()));
+	auto							zUVIt = thrust::make_zip_iterator( thrust::make_tuple( U.begin(), V.begin()));
 
 	thrust::device_vector<int>		IDX(idx, idx + 3);
 	thrust::device_vector<float>	W(w, w + 3);
-	auto							outIt = thrust::make_transform_output_iterator(W.begin(), Functor());
+	auto							outIt = thrust::make_transform_output_iterator( W.begin(), Functor());
 	
 	// gather multiple elements and apply a function before writing result in memory
 	thrust::gather( IDX.begin(), IDX.end(), zUVIt, outIt);
@@ -165,19 +165,12 @@ void	Thursters::WeldTest( void)
     // find index of each input vertex in the list of unique vertices
     thrust::lower_bound(vertices.begin(), vertices.end(), input.begin(), input.end(), indices.begin());
 	std::cout << "Index : " << Th_Utils::IterOut( indices.begin(), indices.end(), "  ") << " \n";
-
-    // print output mesh representation
-    std::cout << "Output Representation" << std::endl;
-    for( size_t i = 0; i < vertices.size(); i++)
-    {
-        PointF2 v = vertices[i];
-        std::cout << " vertices[" << i << "] = (" << thrust::get<0>(v) << "," << thrust::get<1>(v) << ")" << std::endl;
-    }
-    for(size_t i = 0; i < indices.size(); i++)
-    {
-        std::cout << " indices[" << i << "] = " << indices[i] << std::endl;
-    }
-
+ 
+	auto				zipBegin = thrust::make_zip_iterator( thrust::make_tuple( indices.begin(), &input[ 0]));
+	auto				zipEnd = thrust::make_zip_iterator( thrust::make_tuple( indices.end(), &input[ 9]));
+	 std::for_each(zipBegin, zipEnd, []( auto x) {
+			std::cout << thrust::get< 0>( x) << ": " << thrust::get< 1>( x) << "\n";
+		});
     return;
 }
 

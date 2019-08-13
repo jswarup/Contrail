@@ -6,6 +6,7 @@
 #include	<thrust/host_vector.h>
 #include	<thrust/device_vector.h> 
 #include	<thrust/copy.h>
+#include	<thrust/tuple.h>
 #include	<thrust/fill.h>
 #include	<thrust/sequence.h>
 #include	<thrust/functional.h>
