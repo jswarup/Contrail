@@ -39,9 +39,11 @@ public:
 	Thursters( void);
 
 	void	ClampTest( void);
-	void	XFormOutTest(void);
+	void	XFormOutTest( void);
 	void	WeldTest( void);
-
+	void	SaxpyTest( void);
+	void	AsyncTest( void);
+	void	AllocTest( void);
 	void	Fire( void);
 };
 

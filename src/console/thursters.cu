@@ -2,13 +2,16 @@
 
 #include	"thursters.h"
 #include	"thrusters/hive/th_utils.h"
+#include	<future>
+#include	<sstream>
+#include	<map>
+#include <thrust/system/cuda/vector.h>
 
 //_____________________________________________________________________________________________________________________________
 
 Thursters::Thursters( void)
 {
-}
- 
+} 
 
 //_____________________________________________________________________________________________________________________________
 
@@ -136,7 +139,7 @@ void Thursters::XFormOutTest(void)
 
 // define a 2d float vector
 
-void	Thursters::WeldTest( void)
+void	Thursters::WeldTest( void) 
 { 
     thrust::device_vector< PointF2>				input(9);
 
@@ -176,6 +179,210 @@ void	Thursters::WeldTest( void)
 
 //_____________________________________________________________________________________________________________________________
 
+struct SaxpyFunctor 
+{
+    const float a;
+
+    SaxpyFunctor(float _a) : a(_a) {}
+
+TH_UBIQ
+    float operator()(const float& x, const float& y) const { 
+        return a * x + y;
+    }
+};
+
+//_____________________________________________________________________________________________________________________________
+ 
+void Thursters::SaxpyTest(void)
+{
+    // initialize host arrays
+    float x[4] = {1.0, 1.0, 1.0, 1.0};
+    float y[4] = {1.0, 2.0, 3.0, 4.0};
+
+    // transfer to device
+    thrust::device_vector<float> X(x, x + 4);
+    thrust::device_vector<float> Y(y, y + 4);
+ 
+	float	valA  = 2.0;
+
+	thrust::transform( X.begin(), X.end(), Y.begin(), Y.begin(), SaxpyFunctor( valA) );
+    std::cout << "X: " << Th_Utils::IterOut( X.begin(), X.end(), "  ") << " \n";
+    std::cout << "Y: " << Th_Utils::IterOut( Y.begin(), Y.end(), "  ") << " \n";
+
+    return;
+}
+ 
+
+//_____________________________________________________________________________________________________________________________
+
+void	 Thursters::AsyncTest( void)
+{
+	size_t		n = 1 << 20;
+	thrust::device_vector<unsigned int> data(n, 1);
+	thrust::device_vector<unsigned int> result(1, 0);
+ 
+
+	// method 2: use std::async to create asynchrony
+
+	// copy all the algorithm parameters
+	auto			begin        = data.begin();
+	auto			end          = data.end();
+	auto			binary_op    = thrust::plus< size_t>();
+
+	// std::async captures the algorithm parameters by value,  ensure the creation of a new thread
+	size_t			init = 0;
+	std::future< size_t>		future_result = std::async(std::launch::async, [=] {
+		return thrust::reduce( begin, end, init, binary_op);
+	});
+
+	// wait on the result and check that it is correct
+	auto			res = future_result.get();
+	assert( res == n); 
+	
+	std::cout << res << "\n";
+	return;
+}
+
+
+//_____________________________________________________________________________________________________________________________
+
+struct UnknownPointer
+{
+	std::string		message;
+  
+	UnknownPointer( void* p)
+		: message()
+	{
+		std::stringstream	s;
+		s << "Pointer `" << p << "` was not allocated by this allocator.";
+		message = s.str();
+	}
+
+	virtual ~UnknownPointer() {}
+
+	virtual const char	*what() const
+	{
+		return message.c_str();
+	}
+};
+
+//_____________________________________________________________________________________________________________________________
+// A simple allocator for caching cudaMalloc allocations.
+struct CachedAllocator
+{
+	typedef char									value_type;
+	typedef std::multimap<std::ptrdiff_t, char*>	free_blocks_type;
+	typedef std::map<char*, std::ptrdiff_t>			allocated_blocks_type;
+
+	free_blocks_type		free_blocks;
+	allocated_blocks_type	allocated_blocks;
+
+	void free_all()
+	{
+		std::cout << "cached_allocator::free_all()" << std::endl;
+		for ( free_blocks_type::iterator i = free_blocks.begin() ; i != free_blocks.end() ; ++i)
+			thrust::cuda::free( thrust::cuda::pointer<char>(i->second));				// Transform the pointer to cuda::pointer before calling cuda::free.
+
+		for( allocated_blocks_type::iterator i = allocated_blocks.begin(); i != allocated_blocks.end(); ++i)
+			thrust::cuda::free( thrust::cuda::pointer<char>(i->first));				// Transform the pointer to cuda::pointer before calling cuda::free.			
+	}
+
+	CachedAllocator() {}
+
+	~CachedAllocator()
+	{
+		free_all();
+	}
+
+	char	*allocate( std::ptrdiff_t num_bytes)
+	{
+		std::cout << "CachedAllocator::allocate(): num_bytes == " << num_bytes << std::endl;
+
+		char	*result = 0;
+
+		// Search the cache for a free block.
+		free_blocks_type::iterator			free_block = free_blocks.find( num_bytes);
+
+		if ( free_block != free_blocks.end())
+		{
+			std::cout << "CachedAllocator::allocate(): found a free block" << std::endl;
+
+			result = free_block->second;
+
+			// Erase from the `free_blocks` map.
+			free_blocks.erase( free_block);
+		}
+		else
+		{
+			// No allocation of the right size exists, so create a new one with
+			// `thrust::cuda::malloc`.
+			try
+			{
+				std::cout << "CachedAllocator::allocate(): allocating new block" << std::endl;
+				// Allocate memory and convert the resulting `thrust::cuda::pointer` to a raw pointer.
+				result = thrust::cuda::malloc<char>(num_bytes).get();
+			}
+			catch (std::runtime_error&)
+			{
+				throw;
+			}
+		}
+
+		// Insert the allocated pointer into the `allocated_blocks` map.
+		allocated_blocks.insert(std::make_pair(result, num_bytes));
+
+		return result;
+	}
+
+	void deallocate(char *ptr, size_t)
+	{
+		std::cout << "CachedAllocator::deallocate(): ptr == " << reinterpret_cast<void*>(ptr) << std::endl;
+
+		// Erase the allocated block from the allocated blocks map.
+		allocated_blocks_type::iterator		iter = allocated_blocks.find(ptr);
+
+		if ( iter == allocated_blocks.end())
+			throw UnknownPointer( reinterpret_cast<void*>( ptr));
+
+		std::ptrdiff_t	num_bytes = iter->second;
+		allocated_blocks.erase(iter);
+
+		// Insert the block into the free blocks map.
+		free_blocks.insert(std::make_pair(num_bytes, ptr));
+	}
+ 
+};
+
+//_____________________________________________________________________________________________________________________________
+
+void	Thursters::AllocTest( void)
+{
+	std::size_t					num_elements = 32768; 
+	thrust::host_vector< int>	h_input( num_elements);
+
+	thrust::generate( h_input.begin(), h_input.end(), rand);		// Generate random input.
+
+	thrust::cuda::vector<int>	d_input = h_input;
+	thrust::cuda::vector<int>	d_result( num_elements);
+
+	std::size_t					num_trials = 5;
+	CachedAllocator				alloc;
+	for (std::size_t i = 0; i < num_trials; ++i)
+	{
+		d_result = d_input;
+
+		// Pass alloc through cuda::par as the first parameter to sort  to cause allocations to be handled by alloc during sort.
+		thrust::sort( thrust::cuda::par(alloc), d_result.begin(), d_result.end());
+
+		// Ensure the result is sorted.
+		assert(thrust::is_sorted(d_result.begin(), d_result.end()));
+	}
+
+return;
+}
+
+//_____________________________________________________________________________________________________________________________
+
 void	Thursters::Fire( void)
 { 
 	int		major = THRUST_MAJOR_VERSION;
@@ -183,7 +390,10 @@ void	Thursters::Fire( void)
 
 	std::cout << "Thrust v" << major << "." << minor << "\n";
 	 
-	WeldTest();
+	AllocTest();
+	//AsyncTest();
+	//SaxpyTest();
+	//WeldTest();
 	//XFormOutTest();
 	//ClampTest();
     return; 
