@@ -153,8 +153,8 @@ void	Thursters::WeldTest( void)
 	std::cout << "Points: " << Th_Utils::IterOut( &input[ 0], &input[ 9], "  ") << " \n";
 
     // allocate space for output mesh representation
-    thrust::device_vector<PointF2>					vertices = input;
-    thrust::device_vector<unsigned int>				indices( input.size());
+    thrust::device_vector<PointF2>				vertices = input;
+    thrust::device_vector<unsigned int>			indices( input.size());
 
     thrust::sort( vertices.begin(), vertices.end());									// sort vertices to bring duplicates together
 	std::cout << "Sorted: " << Th_Utils::IterOut( vertices.begin(), vertices.end(), "  ") << " \n"; 
@@ -163,7 +163,7 @@ void	Thursters::WeldTest( void)
 	std::cout << "Unique: " << Th_Utils::IterOut( vertices.begin(), vertices.end(), "  ") << " \n";
 
     // find index of each input vertex in the list of unique vertices
-    thrust::lower_bound(vertices.begin(), vertices.end(), input.begin(), input.end(), indices.begin());
+    thrust::lower_bound( vertices.begin(), vertices.end(), input.begin(), input.end(), indices.begin());
 	std::cout << "Index : " << Th_Utils::IterOut( indices.begin(), indices.end(), "  ") << " \n";
  
 	auto				zipBegin = thrust::make_zip_iterator( thrust::make_tuple( indices.begin(), &input[ 0]));

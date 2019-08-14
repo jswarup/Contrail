@@ -6,10 +6,11 @@
       "configurationType": "Debug",
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "buildRoot": "${workspaceRoot}\\delivery\\Windows\\CMakeBuilds\\build\\${name}",
-      "installRoot": "${workspaceRoot}\\out\\install\\${name}",
+      "installRoot": "${workspaceRoot}\\delivery\\CMakeBuilds",
      // "cmakeCommandArgs": "--trace",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
+      "intelliSenseMode": "windows-msvc-x64",
 
       "cmakeToolchain": ""
     }

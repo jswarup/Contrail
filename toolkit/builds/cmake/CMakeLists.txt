@@ -25,6 +25,8 @@ set(CMAKE_INSTALL_PREFIX ${BUILD_PATH}/bin)
 
 include_directories(  
 	${SOURCE_PATH}
+	${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+	${CUDA_INCLUDE_DIRS}
 )
 
 add_library(particles STATIC 
