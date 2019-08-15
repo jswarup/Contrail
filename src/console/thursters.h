@@ -44,6 +44,10 @@ public:
 	void	SaxpyTest( void);
 	void	AsyncTest( void);
 	void	AllocTest( void);
+	void	ScatterGatherTest( void);
+	void	DotprodTest( void);
+
+
 	void	Fire( void);
 };
 

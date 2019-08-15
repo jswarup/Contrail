@@ -21,6 +21,8 @@
 #define TH_DEVICE		__device__
 #define TH_UBIQ			__host__ __device__ 
 
+#define		SELF		(*this)
+
 //_____________________________________________________________________________________________________________________________
 
 #define TH_CUDAERROR_CHECK()																		\

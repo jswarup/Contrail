@@ -1,30 +1,7 @@
 // particle.h ___________________________________________________________________________________________________________________
 #pragma once
 
-#include	"thrusters/tenor/th_includes.h"
-
-//_____________________________________________________________________________________________________________________________
-
-class PointF3
-{
-public:
-	float x;
-	float y;
-	float z;
-
-	PointF3( void) 
-	{}
-
-	PointF3( float xIn, float yIn, float zIn) 
-		: x(xIn), y(yIn), z(zIn)
-	{}
-
-	 void	randomize();
-
-	TH_UBIQ void	Normalize();
-	TH_UBIQ void	Scramble();
-
-};
+#include	"thrusters/tenor/th_includes.h" 
 
 //_____________________________________________________________________________________________________________________________
 
@@ -44,6 +21,32 @@ struct PointF2 :  public thrust::tuple<float,float>
 		ostr << "[ " << thrust::get< 0>( pt2) << ", " << thrust::get< 1>( pt2) << "]";
 		return ostr;
 	}
+};
+
+//_____________________________________________________________________________________________________________________________
+
+struct PointF3 :  public thrust::tuple< float, float,float>
+{
+	typedef thrust::tuple< float, float, float>	Base;
+
+	TH_UBIQ	PointF3( void)
+	{}
+
+	PointF3( float x, float y, float z)
+		: Base( x, y, z)
+	{}
+	PointF3( const Base &tup)
+		: Base( tup)
+	{}
+
+	float	&X( void) { return thrust::get< 0>( SELF); }
+	float	&Y( void) { return thrust::get< 1>( SELF); }
+	float	&Z( void) { return thrust::get< 2>( SELF); }
+	
+	void	randomize();
+
+	TH_UBIQ void	Normalize();
+	TH_UBIQ void	Scramble();
 };
 
 //_____________________________________________________________________________________________________________________________

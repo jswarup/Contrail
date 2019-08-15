@@ -58,13 +58,13 @@ int main( int argc, char ** argv)
 	for (int i = 0; i < n; i++)
 	{
 		temp = pArray[i].TotalDistance();
-		totalDistance.x += temp.x;
-		totalDistance.y += temp.y;
-		totalDistance.z += temp.z;
+		totalDistance.X() += temp.X();
+		totalDistance.Y() += temp.Y();
+		totalDistance.Z() += temp.Z();
 	}
-	float		avgX = totalDistance.x / (float)n;
-	float		avgY = totalDistance.y / (float)n;
-	float		avgZ = totalDistance.z / (float)n;
+	float		avgX = totalDistance.X() / (float)n;
+	float		avgY = totalDistance.Y() / (float)n;
+	float		avgZ = totalDistance.Z() / (float)n;
 	float		avgNorm = sqrt(avgX * avgX + avgY * avgY + avgZ * avgZ);
 	printf("Moved %d particles 100 steps. Average distance traveled is |(%f, %f, %f)| = %f\n", n, avgX, avgY, avgZ, avgNorm);
 	return 0;
